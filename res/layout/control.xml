@@ -1,0 +1,49 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/control"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000" >
+    <jing.app.scroll.CircleLayout
+        android:id="@+id/circle_layout"
+        android:layout_width="match_parent"
+        android:layout_height="460dip"
+        android:layout_alignParentBottom="true"
+        android:background="#ffffff" >
+        
+        <FrameLayout
+            android:id="@+id/widget1"
+            android:layout_width="400dip"
+            android:layout_height="250dip"
+            android:layout_gravity="center"
+            android:background="#ff0000" >
+            <TextView 
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Text1" />
+        </FrameLayout>
+        
+        <FrameLayout
+            android:id="@+id/widget2"
+            android:layout_width="400dip"
+            android:layout_height="250dip"
+            android:layout_gravity="center"
+            android:background="#00ff00" >
+            <TextView 
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Text2" />
+        </FrameLayout>
+        
+        <FrameLayout
+            android:id="@+id/widget3"
+            android:layout_width="400dip"
+            android:layout_height="250dip"
+            android:layout_gravity="center"
+            android:background="#0000ff" >
+            <TextView 
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Text3" />
+        </FrameLayout>
+    </jing.app.scroll.CircleLayout>
+</RelativeLayout>
