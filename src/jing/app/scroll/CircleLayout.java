@@ -1,7 +1,9 @@
 package jing.app.scroll;
 
+import java.util.HashMap;
+import java.util.Set;
+
 import android.content.Context;
-import android.graphics.Canvas;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -13,15 +15,18 @@ import android.widget.Scroller;
 
 public class CircleLayout extends FrameLayout {
 
-    private static final float DEFAULT_ORIGIN_X = 0.5f;
-    private static final float DEFAULT_ORIGIN_Y = 0.5f;
-    
     private Scroller mScroller;
     private GestureDetectorCompat mGestureDetector;
+    
     private boolean mFling = false;
 
     private float mAngle = 0.0f;
     private int mRadius = 0;
+    
+    private final int[] mChildDrawingOrder = { 0, 1, 2 };
+    private final HashMap<Float, Integer> mChildDrawingOrderMap = new HashMap<Float, Integer>();
+    
+    private static final int PADDING = 250;
     
     public CircleLayout(Context context) {
         super(context);
@@ -39,6 +44,7 @@ public class CircleLayout extends FrameLayout {
     }
 
     private void init(Context context) {
+        setChildrenDrawingOrderEnabled(true);
         mGestureDetector = new GestureDetectorCompat(context, new MyGestureListener());
         mScroller = new Scroller(context);
         setClickable(true);
@@ -46,8 +52,6 @@ public class CircleLayout extends FrameLayout {
     }
 
     
-    private static final int PADDING = 200;
-
     private static final String TAG = "CircleLayout";
     
     @Override
@@ -59,6 +63,7 @@ public class CircleLayout extends FrameLayout {
         int parentWidth = right - left;
         int parentHeight = bottom - top;
         mRadius = parentWidth / 2 - PADDING;
+        mChildDrawingOrderMap.clear();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
             // compute the child's position
@@ -82,13 +87,45 @@ public class CircleLayout extends FrameLayout {
             // set the child's scale
             child.setScaleX(scale);
             child.setScaleY(scale);
+            
+            // compute the cosine value as a weight that inflects the vertical distance from the child to us
+            float weight = (float) Math.cos(curAngle);
+            mChildDrawingOrderMap.put(weight, i);
 
         }
+        
+        // Compute the child drawing order
+        // Just sort the keys of the map
+        Set<Float> keySet = mChildDrawingOrderMap.keySet();
+        Float[] keys = new Float[keySet.size()];
+        keys = keySet.toArray(keys);
+        // A insertion sort algorithm
+        for (int i = 1; i < keys.length; i++) {
+            int k = i;
+            for (int j = i - 1; j >= 0; j--) {
+                if (keys[k] < keys[j]) {
+                    float tmp = keys[k];
+                    keys[k] = keys[j];
+                    keys[j] = tmp;
+                    k = j;
+                }
+            }
+        }
+        
+        // Set the the order which we need
+        for (int i = 0; i < mChildDrawingOrder.length; i++) {
+            mChildDrawingOrder[i] = mChildDrawingOrderMap.get(keys[i]);
+        }
     }
-
+    
+    
     @Override
-    public void draw(Canvas canvas) {
-        super.draw(canvas);
+    protected int getChildDrawingOrder(int childCount, int i) {
+        if (i < mChildDrawingOrder.length) {
+            return mChildDrawingOrder[i];
+        }
+        
+        return super.getChildDrawingOrder(childCount, i);
     }
 
     @Override
@@ -107,6 +144,7 @@ public class CircleLayout extends FrameLayout {
              invalidate(); 
          } else {    // scrolling is finished
              // handle the selection change
+             Log.d(TAG, "Scrolling done...........");
          }
 
     }
